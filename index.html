@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Counter-Strike: Reborn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <style>
+    @font-face{
+      font-family:"Monument Extended";
+      src:url("/fonts/PPMonumentExtended-Regular.woff2") format("woff2"),
+          url("/fonts/PPMonumentExtended-Regular.woff") format("woff");
+      font-weight:450;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{
+      font-family:"Monument Extended";
+      src:url("/fonts/PPMonumentExtended-Bold.woff2") format("woff2"),
+          url("/fonts/PPMonumentExtended-Bold.woff") format("woff");
+      font-weight:700;
+      font-style:normal;
+      font-display:swap;
+    }
+    :root{
+      --font-ui: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      --font-display: "Monument Extended", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+      --bg:#0a0a0a;
+      --bg-2:#0e0e0e;
+      --card:#121212;
+      --fg:#f0f0f0;
+      --muted:#b8b8b8;
+      --border:#1d1d1d;
+      --border-2:#242424;
+      --btn:#1a1a1a;
+      --btn-2:#2a2a2a;
+      --pill:#161616;
+      --shadow:0 12px 40px rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--fg);
+      background:#0a0a0a;
+      overflow-x:hidden;
+      font-family:var(--font-ui);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    #bg{position:fixed; inset:0; z-index:-2; width:100%; height:100%}
+    .bg-overlay{position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(0,0,0,.5)}
+    .fallback-blur{
+      position:fixed; inset:0; z-index:-3; pointer-events:none;
+      background:radial-gradient(circle at 40% 45%, rgba(200,200,200,.10), rgba(200,200,200,.03) 28%, transparent 55%),
+                  linear-gradient(180deg,#0a0a0a,#0a0a0a);
+      filter:blur(18px)
+    }
+    .container{max-width:1100px; margin:0 auto; padding:24px}
+    header{display:flex; align-items:center; justify-content:space-between; padding:10px 0}
+    .brand{display:flex; align-items:center; gap:20px; text-decoration:none; color:var(--fg)}
+    .logo{height:60px; width:auto; object-fit:contain} /* Увеличил логотип */
+    .brand-title{font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:0.5px}
+    nav a{color:var(--muted); text-decoration:none; margin-left:18px; font-size:14px}
+    nav a:hover{color:var(--fg)}
+    .hero{margin-top:40px; display:grid; grid-template-columns:1fr; gap:28px; align-items:center}
+    .hero h1{
+      font-family:var(--font-display); font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+      font-size:clamp(28px,5vw,56px); line-height:1.02; margin:0 0 14px; text-shadow:0 0 22px rgba(0,0,0,.2)
+    }
+    .hero p{color:var(--muted); font-size:18px; margin:0 0 22px; max-width:800px}
+    .badges{display:flex; gap:10px; margin:12px 0 18px; flex-wrap:wrap}
+    .pill{font-size:12px; color:#d9d9d9; border:1px solid var(--border-2); padding:6px 10px; border-radius:999px; background:var(--pill); backdrop-filter:blur(2px)}
+    .cta{display:flex; gap:12px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border-2); padding:14px 18px; border-radius:12px; font-weight:700; color:#f2f2f2;
+      background:linear-gradient(180deg,var(--btn),var(--bg-2)); box-shadow:var(--shadow); text-decoration:none; display:inline-block;
+      transition:transform .15s, box-shadow .15s, background .15s
+    }
+    .btn:hover{transform:translateY(-2px); background:linear-gradient(180deg,var(--btn-2),var(--btn))}
+    .btn.secondary{background:var(--bg-2)}
+    .panel{background:linear-gradient(180deg,var(--bg-2),#0c0c0c); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:var(--shadow)}
+    .features{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; min-height:120px}
+    .card h4{margin:0 0 8px; font-size:16px; font-family:var(--font-display); letter-spacing:.3px}
+    .card p{margin:0; font-size:14px; color:var(--muted)}
+    .faq{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    footer{margin:40px 0 10px; color:var(--muted); font-size:13px; text-align:center}
+    @media (max-width:900px){
+      .features{grid-template-columns:1fr}
+      .faq{grid-template-columns:1fr}
+      .logo{height:50px} /* Адаптивный размер для мобильных */
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="bg-overlay" aria-hidden="true"></div>
+  <div class="fallback-blur" aria-hidden="true"></div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <img class="logo" src="images/logo.png" alt="">
+        <strong class="brand-title"></strong>
+      </div>
+      <nav>
+        <a href="#install">Установка</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://discord.gg/GsbuGF9gym" target="_blank" rel="noopener">Discord</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Counter-Strike: Reborn</h1>
+        <p>Старый UI, звуки и вайб 2015 года. Быстрый старт. Фанатский проект, не связан с Valve.</p>
+        <div class="badges">
+          <span class="pill">Old UI (Scaleform)</span>
+          <span class="pill">Old sounds</span>
+          <span class="pill">Комьюнити</span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="https://discord.gg/GsbuGF9gym">Скачать/Установка</a>
+          <a class="btn secondary" href="https://discord.gg/GsbuGF9gym" target="_blank" rel="noopener">В Discord</a>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:34px">
+      <div class="features">
+        <div class="card">
+          <h4>Клиент 2015 года</h4>
+          <p>Старый интерфейс и ощущения. Настройка и запуск по шагам.</p>
+        </div>
+        <div class="card">
+          <h4>Чистая установка</h4>
+          <p>Чистый клиент csgo 2015. Без неизвестных лаунчеров.</p>
+        </div>
+        <div class="card">
+          <h4>Сообщество</h4>
+          <p>Discord с основной информацией, новостями и серверами.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" style="margin-top:40px">
+      <div class="panel">
+        <h3 style="font-family:var(--font-display); letter-spacing:.3px">Установка и запуск</h3>
+        <ol>
+          <li>Вступить в Discord: скачать и распаковать клиент.</li>
+          <li>Следовать гайду по скачиванию и проверке файлов.</li>
+          <li>Запустить клиент и подключиться через консоль <span style="font-family:ui-monospace, Menlo, Consolas, 'SF Mono', 'Segoe UI Mono', monospace;">connect IP:PORT. в дискорд сервере</span>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="faq" style="margin-top:28px">
+      <div class="panel">
+        <h3 style="font-family:var(--font-display); letter-spacing:.3px">FAQ</h3>
+        <div class="faq">
+          <div class="card">
+            <h4>Что такое CSGO Reborn?</h4>
+            <p>Фанатский проект с вайбом 2015 года старого CS:GO и отдельным сервером.</p>
+          </div>
+          <div class="card">
+            <h4>Это безопасно?</h4>
+            <p>Мы публикуем чистый клиент. Используйте только доверенные источники.</p>
+          </div>
+          <div class="card">
+            <h4>VAC/бан?</h4>
+            <p>Данный клиент никак не относится с официальным CS2. VAC Бан вы не получите.</p>
+          </div>
+          <div class="card">
+            <h4>Скины/инвентарь?</h4>
+            <p>Инвентарь локальный и не связан со Steam‑инвентарём.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>CSGO Reborn — фанатский проект. Не связан и не одобрен Valve.</p>
+    </footer>
+  </div>
+
+  <script>
+  (function(){
+    const canvas = document.getElementById('bg');
+    const gl = canvas.getContext('webgl');
+
+    function resize(){
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.floor(innerWidth * dpr);
+      const h = Math.floor(innerHeight * dpr);
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      if (gl) gl.viewport(0, 0, w, h);
+    }
+    resize();
+    addEventListener('resize', resize);
+
+    if (!gl) return;
+
+    const vert = `
+      attribute vec2 aPos;
+      void main(){
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }
+    `;
+
+    const frag = `#ifdef GL_ES
+precision highp float;
+#endif
+
+#extension GL_OES_standard_derivatives : enable
+
+#define NUM_OCTAVES 6
+
+uniform float time;
+uniform vec2 resolution;
+
+mat3 rotX(float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return mat3(
+        1., 0., 0.,
+        0., c, -s,
+        0., s,  c
+    );
+}
+
+mat3 rotY(float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return mat3(
+         c, 0., -s,
+         0., 1.,  0.,
+         s, 0.,  c
+    );
+}
+
+float random(vec2 pos) {
+    return fract(sin(dot(pos.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+float noise(vec2 pos) {
+    vec2 i = floor(pos);
+    vec2 f = fract(pos);
+    float a = random(i + vec2(0.0, 0.0));
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float fbm(vec2 pos) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2 shift = vec2(100.0);
+    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+    for (int i = 0; i < NUM_OCTAVES; i++) {
+        float dir = mod(float(i), 2.0) > 0.5 ? 1.0 : -1.0;
+        v += a * noise(pos - 0.05 * dir * time);
+        pos = rot * pos * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
+}
+
+void main(void) {
+    vec2 p = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+    p -= vec2(12.0, 0.0);
+
+    float t = 0.0, d;
+    float time2 = 1.0;
+
+    vec2 q = vec2(0.0);
+    q.x = fbm(p + 0.00 * time2);
+    q.y = fbm(p + vec2(1.0));
+
+    vec2 r = vec2(0.0);
+    r.x = fbm(p + 1.0 * q + vec2(1.7, 9.2) + 0.15 * time2);
+    r.y = fbm(p + 1.0 * q + vec2(8.3, 2.8) + 0.126 * time2);
+
+    float f = fbm(p + r);
+
+    // hornidev
+    vec3 color = mix(
+        vec3(0.3, 0.3, 0.6),
+        vec3(0.7, 0.7, 0.7),
+        clamp((f * f) * 4.0, 0.0, 1.0)
+    );
+
+    color = mix(
+        color,
+        vec3(0.7, 0.7, 0.7),
+        clamp(length(q), 0.0, 1.0)
+    );
+
+    color = mix(
+        color,
+        vec3(0.4, 0.4, 0.4),
+        clamp(length(r.x), 0.0, 1.0)
+    );
+
+    color = (f * f * f + 0.9 * f * f + 0.8 * f) * color;
+
+    gl_FragColor = vec4(color * 0.7, color.r);
+}
+`;
+
+    function compile(type, src){
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if(!gl.getShaderParameter(sh, gl.COMPLETE_STATUS) && !gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+        console.error(gl.getShaderInfoLog(sh));
+      }
+      return sh;
+    }
+
+    const vs = compile(gl.VERTEX_SHADER, vert);
+    const fs = compile(gl.FRAGMENT_SHADER, frag);
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
+      console.error(gl.getProgramInfoLog(prog));
+    }
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        -1,-1,  1,-1, -1, 1,
+         1,-1,  1, 1, -1, 1
+      ]),
+      gl.STATIC_DRAW
+    );
+
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'resolution');
+    const uTime = gl.getUniformLocation(prog, 'time');
+
+    let start = performance.now();
+    function frame(){
+      const t = (performance.now() - start) / 1000;
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, t);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+  </script>
+</body>
+</html>
