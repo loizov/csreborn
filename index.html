@@ -2,9 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>Counter-Strike: Reborn</title>
+  <title id="animated-title">C</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0a0a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     @font-face{
       font-family:"Monument Extended";
@@ -23,8 +26,8 @@
       font-display:swap;
     }
     :root{
-      --font-ui: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      --font-display: "Monument Extended", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+      --font-ui: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --bg:#0a0a0a;
       --bg-2:#0e0e0e;
       --card:#121212;
@@ -37,6 +40,7 @@
       --pill:#161616;
       --shadow:0 12px 40px rgba(0,0,0,.55);
     }
+    
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -56,13 +60,85 @@
                   linear-gradient(180deg,#0a0a0a,#0a0a0a);
       filter:blur(18px)
     }
-    .container{max-width:1100px; margin:0 auto; padding:24px}
-    header{display:flex; align-items:center; justify-content:space-between; padding:10px 0}
+    
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 18, 18, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .loader-circle {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .container{max-width:1100px; margin:0 auto; padding:24px; padding-top:100px}
+    header{
+      display:flex; 
+      align-items:center; 
+      justify-content:space-between; 
+      padding:15px 24px; 
+      background:rgba(30, 30, 30, 0.9); 
+      backdrop-filter:blur(20px); 
+      border:1px solid rgba(255, 255, 255, 0.15); 
+      border-radius:0 0 20px 20px; 
+      position:fixed; 
+      top:0; 
+      left:50%; 
+      transform:translateX(-50%); 
+      width:calc(100% - 40px); 
+      max-width:1100px; 
+      z-index:100;
+      margin:0;
+      box-shadow:0 0 40px rgba(255, 255, 255, 0.2), 0 0 80px rgba(255, 255, 255, 0.1);
+    }
     .brand{display:flex; align-items:center; gap:20px; text-decoration:none; color:var(--fg)}
-    .logo{height:60px; width:auto; object-fit:contain} /* Увеличил логотип */
+    .logo{height:60px; width:auto; object-fit:contain; transition:opacity 0.3s ease}
     .brand-title{font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:0.5px}
-    nav a{color:var(--muted); text-decoration:none; margin-left:18px; font-size:14px}
-    nav a:hover{color:var(--fg)}
+    nav a{
+      color:var(--muted); 
+      text-decoration:none; 
+      margin-left:24px; 
+      font-size:16px; 
+      font-weight:500;
+      padding:10px 20px; 
+      border-radius:12px; 
+      transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border:1px solid transparent;
+      position:relative;
+      background:linear-gradient(45deg, transparent, transparent);
+    }
+    nav a:hover{
+      color:var(--fg); 
+      background:linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      border-color:rgba(255, 255, 255, 0.3);
+      transform:translateY(-2px) rotateX(5deg);
+      box-shadow:0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.1);
+      text-shadow:0 0 10px rgba(255, 255, 255, 0.3);
+    }
     .hero{margin-top:40px; display:grid; grid-template-columns:1fr; gap:28px; align-items:center}
     .hero h1{
       font-family:var(--font-display); font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
@@ -73,15 +149,32 @@
     .pill{font-size:12px; color:#d9d9d9; border:1px solid var(--border-2); padding:6px 10px; border-radius:999px; background:var(--pill); backdrop-filter:blur(2px)}
     .cta{display:flex; gap:12px; flex-wrap:wrap}
     .btn{
-      border:1px solid var(--border-2); padding:14px 18px; border-radius:12px; font-weight:700; color:#f2f2f2;
-      background:linear-gradient(180deg,var(--btn),var(--bg-2)); box-shadow:var(--shadow); text-decoration:none; display:inline-block;
-      transition:transform .15s, box-shadow .15s, background .15s
+      border:1px solid var(--border); 
+      padding:16px 32px; 
+      border-radius:16px; 
+      font-weight:700; 
+      color:#f2f2f2;
+      background:rgba(18, 18, 18, 0.8); 
+      backdrop-filter:blur(20px);
+      box-shadow:0 4px 15px rgba(0, 0, 0, 0.3); 
+      text-decoration:none; 
+      display:inline-block;
+      transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position:relative;
+      font-size:15px;
+      letter-spacing:0.5px;
     }
-    .btn:hover{transform:translateY(-2px); background:linear-gradient(180deg,var(--btn-2),var(--btn))}
+    .btn:hover{
+      transform:translateY(-3px) rotateX(8deg); 
+      background:rgba(30, 30, 30, 0.9);
+      border-color:rgba(255, 255, 255, 0.3);
+      box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 255, 255, 0.1);
+      text-shadow:0 0 15px rgba(255, 255, 255, 0.3);
+    }
     .btn.secondary{background:var(--bg-2)}
-    .panel{background:linear-gradient(180deg,var(--bg-2),#0c0c0c); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:var(--shadow)}
+    .panel{background:rgba(18, 18, 18, 0.8); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:var(--shadow)}
     .features{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px}
-    .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; min-height:120px}
+    .card{background:rgba(18, 18, 18, 0.8); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:14px; padding:16px; min-height:120px}
     .card h4{margin:0 0 8px; font-size:16px; font-family:var(--font-display); letter-spacing:.3px}
     .card p{margin:0; font-size:14px; color:var(--muted)}
     .faq{display:grid; grid-template-columns:1fr 1fr; gap:14px}
@@ -89,11 +182,15 @@
     @media (max-width:900px){
       .features{grid-template-columns:1fr}
       .faq{grid-template-columns:1fr}
-      .logo{height:50px} /* Адаптивный размер для мобильных */
+      .logo{height:50px}
     }
   </style>
 </head>
 <body>
+  <div class="loader" id="loader">
+    <div class="loader-circle"></div>
+  </div>
+  
   <canvas id="bg" aria-hidden="true"></canvas>
   <div class="bg-overlay" aria-hidden="true"></div>
   <div class="fallback-blur" aria-hidden="true"></div>
@@ -122,7 +219,6 @@
         </div>
         <div class="cta">
           <a class="btn" href="https://discord.gg/A7xmbkRHHD">Скачать/Установка</a>
-          <a class="btn secondary" href="https://discord.gg/A7xmbkRHHD" target="_blank" rel="noopener">В Discord</a>
         </div>
       </div>
     </section>
@@ -185,6 +281,51 @@
   </div>
 
   <script>
+  function animateTitle() {
+    const title = document.getElementById('animated-title');
+    const fullTitle = 'Counter-Strike: Reborn';
+    let currentIndex = 0;
+    let isSlash = false;
+    
+    function updateTitle() {
+      if (currentIndex < fullTitle.length) {
+        const currentText = fullTitle.substring(0, currentIndex + 1);
+        const slash = isSlash ? '/' : '\\';
+        title.textContent = currentText + slash;
+        
+        if (isSlash) {
+          isSlash = false;
+        } else {
+          isSlash = true;
+          currentIndex++;
+        }
+        
+        setTimeout(updateTitle, 600);
+      } else {
+        title.textContent = fullTitle;
+        setTimeout(() => {
+          currentIndex = 0;
+          isSlash = false;
+          updateTitle();
+        }, 3000);
+      }
+    }
+    
+    updateTitle();
+  }
+  
+  document.addEventListener('DOMContentLoaded', animateTitle);
+
+  window.addEventListener('load', function() {
+    const loader = document.getElementById('loader');
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 500);
+    }, 1000);
+  });
+
   (function(){
     const canvas = document.getElementById('bg');
     const gl = canvas.getContext('webgl');
@@ -288,7 +429,6 @@ void main(void) {
 
     float f = fbm(p + r);
 
-    // hornidev
     vec3 color = mix(
         vec3(0.3, 0.3, 0.6),
         vec3(0.7, 0.7, 0.7),
